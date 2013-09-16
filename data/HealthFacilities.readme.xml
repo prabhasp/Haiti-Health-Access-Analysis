@@ -1,0 +1,213 @@
+<metadata>
+  <idinfo>
+    <citation>
+      <citinfo>
+        <title>Haiti Health Facilities (US HHS)</title>
+        <origin>US Department of Health and Human Services</origin>
+      </citinfo>
+    </citation>
+    <descript>
+      <abstract>This shapefile contains the locations of all health facilities on the island of Haiti prior to the 2010 Earthquake.  data is based on  the 2005 List of Health Institutions from the Ministre de la Sante Publique et de la Population (MSPP), Sept 2005, from data sources listed with specific records.
+
+This dataset is a complied listing of all reported heath facilities in the Republic of Haiti and contains the locations of all health facilities in Haiti prior to the January 2010 earthquake with updated information on damage status for some of the hospitals. Some points are duplicates with alternate locations. The intent of this dataset is to be a complete listing of all heath care facilities in Haiti. - Updates with corrected information should be submitted.
+ 
+ 
+This dataset was created from many sources including:
+Republic of Haiti, Ministere de la Sante Publicue et de Population Liste Des Institutions Sanitaires, September 2005
+USAID
+OFDA
+US Health and Human Services
+WHO
+Ushahidi
+UN/MINUSTAH
+Sahana Foundation
+PEPFAR
+PAHO
+  
+THESE MATERIALS ARE PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. USE OF THESE MATERIALS CONSTITUTES ACCEPTANCE OF THIS DISCLAIMER OF LIABILITY. 
+ 
+The authors of this software have used their best efforts in its preparation. These efforts include the development, research, and testing of the theories and programs to determine their effectiveness. HOWEVER, neither the authors nor the U.S. Government nor any agency thereof, nor any of their employees, nor any of their contractors, subcontractors, or their employees, make any warranty express or implied, or assume any legal liability or responsibility for the accuracy, completeness, or usefulness of any information apparatus, algorithm, product, or process disclosed, or represent that its use would not infringe on privately owned rights. </abstract>
+    </descript>
+    <spdom>
+      <bounding>
+        <westbc>-74.4541</westbc>
+        <southbc>0.0</southbc>
+        <eastbc>0.0</eastbc>
+        <northbc>20.0667</northbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekey>government,haiti,haitiquake,medical,official</themekey>
+      </theme>
+    </keywords>
+    <ptcontac>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>US Department of Health and Human Services</cntorg>
+          <cntper>Eric Schmeckpeper</cntper>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>mailing address</addrtype>
+          <address>eschmeckpeper@fs.fed.us
+US Forest Service Detailer to USAID-OFDA</address>
+        </cntaddr>
+        <cntvoice></cntvoice>
+      </cntinfo>
+    </ptcontac>
+  </idinfo>
+  <eainfo>
+    <detailed>
+      <attr>
+        <attrlabl>PCode</attrlabl>
+        <attrdef>MSPP code for facilities</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Sante ID</attrlabl>
+        <attrdef>ID number assigned locally to each health facility within a Commune</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>District ID</attrlabl>
+        <attrdef>District ID number</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Nom Institute</attrlabl>
+        <attrdef>Name of Health facility from original databases</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Operating Organisation</attrlabl>
+        <attrdef>Operating Organization from MSPP 2005 database</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Comment</attrlabl>
+        <attrdef>Add additional information</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Y DDS</attrlabl>
+        <attrdef>Latitude in decimal Degrees WGS84</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Commune</attrlabl>
+        <attrdef>Commune Name</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Facility Name (English)</attrlabl>
+        <attrdef>English name of Facility</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Departemen</attrlabl>
+        <attrdef>Department name</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Categorie</attrlabl>
+        <attrdef>Category of facility
+
+C/S: C/S - Health center (Centre de Sante)
+CAL : CAL - Health center with beds
+CSL : CSL - Health center without beds
+DISP: DISP - Dispensary
+F Hospital : F Hospital - Field Hospital
+HOP: HOP - Hospital
+HOPSpec: HOPSpec - Specialized Hospital
+Other : Other - Other type of health facility
+Unknown : Unknown - Unknown type of facility
+</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Construction Type</attrlabl>
+        <attrdef>Type of Construction</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>X DDS</attrlabl>
+        <attrdef>Longitude in Decimal Degrees WGS84</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Source of data - may be multiple sources</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>FID Value</attrlabl>
+        <attrdef>This value equals the internal FID Value</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Commune Code</attrlabl>
+        <attrdef>ID number created by joining Region ID and the CommuneID</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Facility Name (French)</attrlabl>
+        <attrdef>French name of facility</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Fax</attrlabl>
+        <attrdef>Fax number for facility</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Accuracy</attrlabl>
+        <attrdef>Comment on accuracy of value.
+
+Describe how coordinate was located
+Examples: GPS with Garmin, located of Google Earth, located off topographic map, etc.</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Region ID</attrlabl>
+        <attrdef>Region ID number assigned by MSPP</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Health Center ID</attrlabl>
+        <attrdef>Unique ID number for each health facility identified in Haiti.
+
+CommuneCode * 10000 +  SanteID
+
+Example 4210045 is a DISP in Quanaminthe, NordEst
+
+Add 9000 to this value for data without pcodes and number consecutively ,
+Example - 1139018 is a DISP in Carrefour, Ouest that and there is not a SanteID or Ministry PCode
+
+Add 5000 where locations are missing (2009 MSPP data
+Example - 1125072 is a CSL (Haiti Med) in Delmas, Ouest in the 2009 MFSS database where the location is not known.</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Facility Name (Kreyol)</attrlabl>
+        <attrdef>Kreyol name for facility</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Type</attrlabl>
+        <attrdef>Type of operation - Public private or mixed
+
+PUB: PUB - Public operation
+PRI: PRI - Private operation
+MIX: MIX - Mixed operation
+COM: COM - Community
+null - No information
+</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Damage</attrlabl>
+        <attrdef>Level of damage and operational level
+
+Completely destroyed
+Damaged
+Operational
+Undetermined
+Field Hospital
+Field Hospital Co-located with Hospital</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Telephone</attrlabl>
+        <attrdef>Telephone number to contact facility</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Commune ID</attrlabl>
+        <attrdef>ID number assigned to each Commune by HSPP</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Address</attrlabl>
+        <attrdef>Address of facility</attrdef>
+      </attr>
+      <attr>
+        <attrlabl>Email</attrlabl>
+        <attrdef>Email address for facility</attrdef>
+      </attr>
+    </detailed>
+  </eainfo>
+</metadata>
