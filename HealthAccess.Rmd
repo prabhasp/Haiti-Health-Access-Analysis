@@ -1,0 +1,74 @@
+```{r echo=T, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
+### Health Access in Haiti
+# P. Pokharel, Sep. 2013
+
+dat_dir <- "~/Code/Haiti_Hospital_Access/"
+setwd(dat_dir)
+
+### Installing packages
+# install.packages(c("raster", "rgdal", "rasterVis"))
+### Load packages
+require(raster)
+require(rgdal)
+require(rasterVis)
+```
+
+The datasets we have access to are a population grid estimate from 2003, and a list of health facilities from before the 2010 earthquake, which seems to have primarily been collected in 2005.
+
+```{r echo=T, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
+## Load health facility data, and population grid
+health_df <- read.csv("data/HealthFacilities.csv", stringsAsFactors=F)
+  # there is a single row where the lat/lng is off from the rest of dataset; remove it
+  health_df <- health_df[-which(health_df$longitude > -10),]
+#popgrid <- readGDAL("data/2003_pop_estimates.tif")
+popraster <- raster("data/2003_pop_estimates.tif")
+
+## Re-project to the same co-ordinate system
+health_sp <- health_df
+coordinates(health_sp) <- ~longitude+latitude
+proj4string(health_sp) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+health_sp <- spTransform(health_sp, popraster@crs)
+health_df <- as.data.frame(health_sp) # in case we want to poke around a normal df
+
+## To make things faster, run operations on an aggregated raster
+## which is NA'ed out in areas with no people
+## Scale: one pixel used to be 100mx100m, now it is 10kmx10km
+popagg <- aggregate(popraster, fact=10, fun=sum)
+values(popagg) <- replace(values(popagg), values(popagg)<1, NA)
+```
+
+Here, roughly, is what a coarse view of (log) population in Haiti looks like:
+
+```{r echo=T, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
+blank_theme <- function() {
+  theme(axis.text=element_blank(), axis.ticks=element_blank(), panel.grid=element_blank(), axis.title=element_blank())
+}
+poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) + scale_fill_continuous(trans='log10') + blank_theme() + labs(fill="Log Population\n(per 10km^2 cell)")
+print(poplayer)
+```
+
+The objective here is to think about population and the health facilities. Lets make a quick plot, to send our minds in the right place; red is health facilities here:
+```{r echo=T, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
+poplayer + geom_point(data=health_df, aes(x=longitude, y=latitude), color='red', alpha=0.5)
+```
+
+
+We don't get a very clear picture of things there. Next step is to calculate distances from populated points to facilities.
+```{r echo=T, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
+## Find distances from health facility
+distraster <- distanceFromPoints(popagg, health_sp, 
+  filename='data/distanceRaster.tif', format='GTiff', overwrite=TRUE)
+distraster <- mask(distraster, popagg)
+```
+
+Finally, lets plot it! 
+Bluer the point, farther away from a health facility. Red points are health facilities, overlaid on top:
+```{r echo=T, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
+distlayer <- gplot(distraster) + geom_tile(aes(fill=value)) +
+  blank_theme() + labs(fill="Distance to Health Facility")
+distlayer + geom_point(data=health_df, aes(x=longitude, y=latitude), color='red', alpha=0.5)
+```
+
+
+
+
