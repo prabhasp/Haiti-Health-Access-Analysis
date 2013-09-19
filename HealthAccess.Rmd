@@ -39,15 +39,18 @@ The health facility dataset is from [GeoCommons](http://geocommons.com/overlays/
 health_df <- read.csv("data/HealthFacilities.csv", stringsAsFactors=F)
   # there is a single row where the lat/lng is off from the rest of dataset; remove it
   health_df <- health_df[-which(health_df$longitude > -10),]
+  # there is no consistent id, so lets use the row.name
+  health_df$row <- row.names(health_df)
 #popgrid <- readGDAL("data/2003_pop_estimates.tif")
 popraster <- raster("data/2003_pop_estimates.tif")
 
 ## Re-project to the same co-ordinate system
 health_sp <- health_df
 coordinates(health_sp) <- ~longitude+latitude
-proj4string(health_sp) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+wgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+proj4string(health_sp) <- wgs84
 health_sp <- spTransform(health_sp, popraster@crs)
-health_df <- as.data.frame(health_sp) # in case we want to poke around a normal df
+health_df_utm <- as.data.frame(health_sp)
 
 ## To make things faster, run operations on an aggregated raster
 ## which is NA'ed out in areas with no people
@@ -65,7 +68,9 @@ We will be working at a resolution of 1km^2 per cell; shown below.
 blank_theme <- function() {
   theme(axis.text=element_blank(), axis.ticks=element_blank(), panel.grid=element_blank(), axis.title=element_blank())
 }
-poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) + scale_fill_continuous(trans='log10') + blank_theme() + labs(fill="Log Population\n(per 1km^2 cell)")
+poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low='white', high='darkgreen', trans='log10') + 
+  blank_theme() + labs(fill="Log Population\n(per 1km^2 cell)")
 print(poplayer)
 ```
 The total population represented is 8.4M; Haiti's population has grown to 10M+ in 2013.
@@ -73,18 +78,22 @@ The total population represented is 8.4M; Haiti's population has grown to 10M+ i
 ---
 ## Haiti's population and health facilities
 
-Here, health facilities (in red) have been overlaid on top of the population layer.
+Here, health facilities (in blue) have been overlaid on top of the population layer.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
-poplayer + geom_point(data=health_df, aes(x=longitude, y=latitude), color='red', alpha=0.5)
+poplayer + geom_point(data=health_df_utm, aes(x=longitude, y=latitude), 
+                      color='darkblue', shape='+', size=4.5)
 ```
 
 The dataset, from GeoCommons, was primarily collected in 2005 and revised in 2009.
 
----
-## Distance to health facilities
+--- .segue .dark
 
-Below, the more purple the regions, the higher the distance to a health facility.
+## 1. Where are people far away from health facilities?
+
+---
+
+Below, the redder the pixel, the farther the people living there have to travel to a health facility.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 ## Find distances from health facility
@@ -95,51 +104,61 @@ distraster <- mask(distraster, popagg)
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 distlayer <- gplot(distraster) + geom_tile(aes(fill=value)) +
-  blank_theme() + labs(fill="Distance to Health Facility") +
-  scale_fill_gradient(low='white', high='#6A51A3')
-distlayer + geom_point(data=health_df, aes(x=longitude, y=latitude), color='red', alpha=0.5)
+  blank_theme() + labs(fill="Distance to\nHealth Facility") +
+  scale_fill_gradient2(low='white', mid='yellow', high='red')
+distlayer #+ geom_point(data=health_df_utm, aes(x=longitude, y=latitude), color='green')
 ```
+
+Methodology: straight line distance in m (on UTM projection).
 
 ---
 
+**A different view of access:** lines connect population points (every 2km) to health facilities. Long lines mean long distances to the nearest health facility. (Inspired by [[1]](http://flowingdata.com/2013/08/27/in-search-of-food-deserts/))
+
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
 require(plyr)
-health_df <- plyr::rename(health_df,c("latitude"="y", "longitude"="x"))
-health_df$row <- row.names(health_df)
-health_df <- subset(health_df, select=c("x", "y", "row", "Categorie"))
+health_df_utm <- plyr::rename(health_df_utm,c("latitude"="y", "longitude"="x"))
+health_df_utm <- subset(health_df_utm, select=c("x", "y", "row", "Categorie"))
 
 # For each population point, identify the closest health clinic
 popagg2 <- raster::aggregate(popagg)
 popPoints <- as.data.frame(rasterToPoints(popagg2))
 require(RSAGA)
-nearestH <- pick.from.points(popPoints, health_df, radius=2E10, pick="row")
+nearestH <- pick.from.points(popPoints, health_df_utm, radius=2E10, pick="row")
 ```
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
-merged <- merge(nearestH, health_df, by="row", 
+# create a merge dataset; each row is a population point + nearest health facility
+merged <- merge(nearestH, health_df_utm, by="row", 
                 suffixes=c(".pop", ".health"))
+# also pull lat / long in
+merged <- merge(merged, health_df[c("row", "longitude", "latitude")], by="row")
 merged$pID <- row.names(merged)
 imerged <- idata.frame(merged)
+
+# create a data frame for plotting; instead of health facility and nearest data frame
+# on single row, separate them out, but match them by "group" name
 mergedPlotDF <- ddply(imerged, .(pID), function(df) { 
   data.frame(
     x=c(df$x.pop, df$x.health), 
-    y=c(df$y.pop, df$y.health), 
+    y=c(df$y.pop, df$y.health),
     group=c(df[1,'pID'], df[1,'pID']),
     Population=c(df[1,'X2003_pop_estimates'],df[1,'X2003_pop_estimates'])
 )})
 ```
-Here is another view; each line links a population point (every 20km) to a health facility. Long lines mean long distances to the health facility. Inspired by [[1]](http://flowingdata.com/2013/08/27/in-search-of-food-deserts/).  
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
 require(ggplot2)
 ggplot(mergedPlotDF, aes(x=x, y=y, group=group)) + geom_line() +  blank_theme()
 ```
 
+--- .segue .dark
+
+## 2. Where are there LARGE populations far away from health facilities?
 
 ---
 
-Here, distance to health facility and population at point of origin are shown *together*.
-Darker (more purple) indicate bigger populations; long dark lines are larger populations who have to travel long distances to health facilities.
+On this map, population is represented by color. Brighther (more purple) indicate bigger populations. Long purple lines indicate larger populations who have to travel long distances to health facilities.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=13, cache=TRUE}
 mergedPlotDF$Population.Bin <- cut(mergedPlotDF$Population, include.lowest=T,
@@ -148,16 +167,21 @@ mergedPlotDF$Population.Bin <- cut(mergedPlotDF$Population, include.lowest=T,
 p <- ggplot(mergedPlotDF, aes(x=x, y=y, group=group, color=Population.Bin)) + geom_line() + blank_theme()
 p + scale_color_brewer(palette="PuRd")
 ```
+
+--- .segue .dark
+
+## 3. Which health facilities are over-burdened?
+
 ---
 
-Last but not the least, it is worth noting that not all health facilities are made the same, and some health facilities are serving huge amounts of people. Here is a look at this phenomenon, by category of health facility:
+Each dot below is a health facility. The circle size represents the population that the facility serves, and the color represents the type of facility.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=12, cache=TRUE}
 popServed <- ddply(imerged, .(row, Categorie), function(df) { 
   data.frame(
     popServed = sum(df$X2003_pop_estimates), 
-    x=df[1,'x.health'], 
-    y=df[1,'y.health']
+    longitude = df[1,'longitude'],
+    latitude = df[1,'latitude']
 )})
 require(doBy)
 popServed$Categorie <- recodeVar(as.character(popServed$Categorie),
@@ -166,10 +190,43 @@ popServed$Categorie <- recodeVar(as.character(popServed$Categorie),
   c("Health Center", "H.C. with beds", "H.C. no beds",
     "Dispensary", "Field Hospital", "Hospital",
     "Specialized Hospital", "Other", "Other"))
-ggplot(data=popServed, aes(x=x, y=y, size=popServed, color=Categorie)) + geom_point() # + blank_theme()
+hospital_plot <- ggplot(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + geom_point() + blank_theme() + theme(legend.text = element_text(size = 13), legend.title=element_text(size=14))
+print(hospital_plot)
 ```
 
-The larger red and green points, dispensaries and health centers serving large amounts of people, are worth thinking hard about.
+Assumption: every population cell attends the health facility nearest to it.
+
+---
+
+In a zoomed-in view of some cities below, we see that there are health centers (blue / green) that serve large populations. These are facilities with high potential for upgrades.
+
+```{r echo=F, warning=F, message=F, comment=NA, fig.height=4, fig.width=4, cache=TRUE}
+require(ggmap)
+mapHaitianCity <- function(city_name, center_point, zl=13, lp='none') {
+  ggmap(get_map(location=center_point, source="google", 
+                filename=paste("figure/map",city_name,'png',sep='.'), 
+                color='bw', zoom=zl), alpha=0.2) + 
+    geom_point(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + labs(title=city_name) + blank_theme() +
+    opts(legend.position=lp)
+}
+mapHaitianCity('Port Au Prince', c(-72.3431, 18.5430), zl=12)
+mapHaitianCity('Carrefour', c(-72.4167, 18.5333))
+mapHaitianCity('Delmas', c(-72.3000, 18.5500))
+#mapHaitianCity('Cap Haitien', c(-72.1997, 19.7562))
+#mapHaitianCity('Gonaïves', c(-72.6939, 19.4609))
+
+```
+```{r echo=F, warning=F, message=F, comment=NA, fig.height=3, fig.width=3, cache=TRUE}
+# just the legend -- from http://stackoverflow.com/questions/12041042/how-to-plot-just-the-legends-in-ggplot2
+g_legend<-function(a.gplot){ 
+    tmp <- ggplot_gtable(ggplot_build(a.gplot)) 
+    leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
+    legend <- tmp$grobs[[leg]] 
+    return(legend)}
+
+legend <- g_legend(hospital_plot + opts(legend.position='bottom'))
+grid.frame(); grid.draw(legend)
+```
 
 ---
 

@@ -18,7 +18,11 @@
     src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
   </script>
   
-    
+    <link rel="stylesheet" href = "assets/css/default.css">
+<link rel="stylesheet" href = "assets/css/fonts.css">
+<link rel="stylesheet" href = "assets/css/phone.css">
+<link rel="stylesheet" href = "assets/css/slidify.css">
+
 </head>
 <body style="opacity: 0">
   <slides class="layout-widescreen">
@@ -73,7 +77,7 @@
     <h2>Haiti&#39;s population and health facilities</h2>
   </hgroup>
   <article>
-    <p>Here, health facilities (in red) have been overlaid on top of the population layer.</p>
+    <p>Here, health facilities (in blue) have been overlaid on top of the population layer.</p>
 
 <p><img src="figure/unnamed-chunk-4.png" alt="plot of chunk unnamed-chunk-4"> </p>
 
@@ -83,15 +87,12 @@
   <!-- Presenter Notes -->
 </slide>
 
-      <slide class="" id="slide-4" style="background:;">
+      <slide class="segue dark" id="slide-4" style="background:;">
   <hgroup>
-    <h2>Distance to health facilities</h2>
+    <h2>1. Where are people far away from health facilities?</h2>
   </hgroup>
   <article>
-    <p>Below, the more purple the regions, the higher the distance to a health facility.</p>
-
-<p><img src="figure/unnamed-chunk-6.png" alt="plot of chunk unnamed-chunk-6"> </p>
-
+    
   </article>
   <!-- Presenter Notes -->
 </slide>
@@ -101,9 +102,11 @@
     
   </hgroup>
   <article>
-    <p>Here is another view; each line links a population point (every 20km) to a health facility. Long lines mean long distances to the health facility. Inspired by <a href="http://flowingdata.com/2013/08/27/in-search-of-food-deserts/">[1]</a>.  </p>
+    <p>Below, the redder the pixel, the farther the people living there have to travel to a health facility.</p>
 
-<p><img src="figure/unnamed-chunk-9.png" alt="plot of chunk unnamed-chunk-9"> </p>
+<p><img src="figure/unnamed-chunk-6.png" alt="plot of chunk unnamed-chunk-6"> </p>
+
+<p>Methodology: straight line distance in m (on UTM projection).</p>
 
   </article>
   <!-- Presenter Notes -->
@@ -114,8 +117,30 @@
     
   </hgroup>
   <article>
-    <p>Here, distance to health facility and population at point of origin are shown <em>together</em>.
-Darker (more purple) indicate bigger populations; long dark lines are larger populations who have to travel long distances to health facilities.</p>
+    <p><strong>A different view of access:</strong> lines connect population points (every 2km) to health facilities. Long lines mean long distances to the nearest health facility. (Inspired by <a href="http://flowingdata.com/2013/08/27/in-search-of-food-deserts/">[1]</a>)</p>
+
+<p><img src="figure/unnamed-chunk-9.png" alt="plot of chunk unnamed-chunk-9"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue dark" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>2. Where are there LARGE populations far away from health facilities?</h2>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <p>On this map, population is represented by color. Brighther (more purple) indicate bigger populations. Long purple lines indicate larger populations who have to travel long distances to health facilities.</p>
 
 <p><img src="figure/unnamed-chunk-10.png" alt="plot of chunk unnamed-chunk-10"> </p>
 
@@ -123,22 +148,47 @@ Darker (more purple) indicate bigger populations; long dark lines are larger pop
   <!-- Presenter Notes -->
 </slide>
 
-      <slide class="" id="slide-7" style="background:;">
+      <slide class="segue dark" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>3. Which health facilities are over-burdened?</h2>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-10" style="background:;">
   <hgroup>
     
   </hgroup>
   <article>
-    <p>Last but not the least, it is worth noting that not all health facilities are made the same, and some health facilities are serving huge amounts of people. Here is a look at this phenomenon, by category of health facility:</p>
+    <p>Each dot below is a health facility. The circle size represents the population that the facility serves, and the color represents the type of facility.</p>
 
 <p><img src="figure/unnamed-chunk-11.png" alt="plot of chunk unnamed-chunk-11"> </p>
 
-<p>The larger red and green points, dispensaries and health centers serving large amounts of people, are worth thinking hard about.</p>
+<p>Assumption: every population cell attends the health facility nearest to it.</p>
 
   </article>
   <!-- Presenter Notes -->
 </slide>
 
-      <slide class="" id="slide-8" style="background:;">
+      <slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <p>In a zoomed-in view of some cities below, we see that there are health centers (blue / green) that serve large populations. These are facilities with high potential for upgrades.</p>
+
+<p><img src="figure/unnamed-chunk-121.png" alt="plot of chunk unnamed-chunk-12"> <img src="figure/unnamed-chunk-122.png" alt="plot of chunk unnamed-chunk-12"> <img src="figure/unnamed-chunk-123.png" alt="plot of chunk unnamed-chunk-12"> </p>
+
+<p><img src="figure/unnamed-chunk-13.png" alt="plot of chunk unnamed-chunk-13"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-12" style="background:;">
   <hgroup>
     <h2>So what?</h2>
   </hgroup>
@@ -156,7 +206,7 @@ Darker (more purple) indicate bigger populations; long dark lines are larger pop
   <!-- Presenter Notes -->
 </slide>
 
-      <slide class="" id="slide-9" style="background:;">
+      <slide class="" id="slide-13" style="background:;">
   <hgroup>
     <h2>Thank You</h2>
   </hgroup>
