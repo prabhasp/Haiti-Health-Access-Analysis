@@ -1,0 +1,6 @@
+*.md
+
+# RMD / Shiny compile artifacts
+cache/
+libraries/
+
