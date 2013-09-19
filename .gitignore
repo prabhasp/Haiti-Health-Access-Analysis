@@ -1,6 +1,10 @@
 *.md
 
+# run make download to populate the data directory
+data/
+
 # RMD / Shiny compile artifacts
 cache/
 libraries/
+figure/
 
