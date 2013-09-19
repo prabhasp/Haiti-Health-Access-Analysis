@@ -154,7 +154,7 @@ ggplot(mergedPlotDF, aes(x=x, y=y, group=group)) + geom_line() +  blank_theme()
 
 --- .segue .dark
 
-## 2. Where are there LARGE populations far away from health facilities?
+## 2. Where are there __large__ populations far away from health facilities?
 
 ---
 
@@ -232,7 +232,7 @@ grid.frame(); grid.draw(legend)
 
 ## So what?
 
- * The maps in this presentation are a small glimpse to insights analytical software (such as this script, programmed in R) can do with good data. More sophisticated algorithms can take the visual analysis here a step further, and recommend areas where health facilities should be upgraded, and where new ones should be built.
+ * The maps in this presentation are a small glimpse to insights analytical software (such as this script, programmed in R) can do with good data. More sophisticated algorithms can take the visual analysis here a step further, and recommend where new health facilities should be built, which ones should be upgraded.
 
  * The pre-requisite to having this be useful is timely, updated data, so plans can stay current.
 
@@ -240,9 +240,9 @@ grid.frame(); grid.draw(legend)
 
  * And finally, the analysis, however sophisticated, cannot exist in a vacuum. It needs to be interpreted and understood by those who actually know on-the-ground realities.
  
-It makes me proud that we are working on all of those problems at the [Modi Research Group](http://modi.mech.columbia.edu).
+We are working on all of these problems at the [Modi Research Group](http://modi.mech.columbia.edu).
 
----
+--- .centered
 
 ## Thank You
 

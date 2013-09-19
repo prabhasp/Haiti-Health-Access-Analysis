@@ -1,4 +1,4 @@
-index.html: index.Rmd
+index.html: index.Rmd assets/css/*
 	Rscript Compile.R
 clean:
 	rm cache/*
