@@ -1,8 +1,8 @@
-HealthAccess.html: HealthAccess.Rmd
+index.html: index.Rmd
 	Rscript Compile.R
 clean:
 	rm cache/*
-	touch HealthAccess.Rmd
+	touch index.Rmd
 download:
 	wget http://geocommons.com/overlays/21222.csv
 	mv 21222.csv data/HealthFacilities.csv

@@ -1,3 +1,3 @@
 require(knitr)
 require(slidify)
-slidify("HealthAccess.Rmd")
+slidify("index.Rmd")
