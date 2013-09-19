@@ -216,7 +216,7 @@ mapHaitianCity('Delmas', c(-72.3000, 18.5500))
 #mapHaitianCity('Gonaïves', c(-72.6939, 19.4609))
 
 ```
-```{r echo=F, warning=F, message=F, comment=NA, fig.height=3, fig.width=3, cache=TRUE}
+```{r echo=F, warning=F, message=F, comment=NA, fig.height=3, fig.width=12, cache=TRUE}
 # just the legend -- from http://stackoverflow.com/questions/12041042/how-to-plot-just-the-legends-in-ggplot2
 g_legend<-function(a.gplot){ 
     tmp <- ggplot_gtable(ggplot_build(a.gplot)) 
