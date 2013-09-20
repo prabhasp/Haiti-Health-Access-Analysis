@@ -24,7 +24,7 @@ setwd(dat_dir)
 require(raster)
 require(rgdal)
 require(rasterVis)
-require(ggplot)
+require(ggplot2)
 ```
 
 In this presentation, we will look at visualizaions of access to health facilities in Haiti.
@@ -229,7 +229,7 @@ grid.frame(); grid.draw(legend)
 
 ---
 
-## So what?
+## And next ...
 
  * The maps in this presentation are a small glimpse to insights analytical software (such as this script, programmed in R) can do with good data. More sophisticated algorithms can take the visual analysis here a step further, and recommend where new health facilities should be built, which ones should be upgraded.
 
