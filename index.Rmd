@@ -40,7 +40,7 @@ health_df <- read.csv("data/HealthFacilities.csv", stringsAsFactors=F)
   # there is a single row where the lat/lng is off from the rest of dataset; remove it
   health_df <- health_df[-which(health_df$longitude > -10),]
   # there is no consistent id, so lets use the row.name
-  health_df$row <- row.names(health_df)
+  health_df$hID <- row.names(health_df)
 #popgrid <- readGDAL("data/2003_pop_estimates.tif")
 popraster <- raster("data/2003_pop_estimates.tif")
 
@@ -69,7 +69,7 @@ blank_theme <- function() {
   theme(axis.text=element_blank(), axis.ticks=element_blank(), panel.grid=element_blank(), axis.title=element_blank())
 }
 poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) + 
-  scale_fill_gradient(low='white', high='darkgreen', trans='log10') + 
+  scale_fill_gradient(low='white', high='darkblue', trans='log10') + 
   blank_theme() + labs(fill="Log Population\n(per 1km^2 cell)")
 print(poplayer)
 ```
@@ -78,11 +78,11 @@ The total population represented is 8.4M; Haiti's population has grown to 10M+ i
 ---
 ## Haiti's population and health facilities
 
-Here, health facilities (in blue) have been overlaid on top of the population layer.
+Here, health facilities (in red) have been overlaid on top of the population layer.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 poplayer + geom_point(data=health_df_utm, aes(x=longitude, y=latitude), 
-                      color='darkblue', shape='+', size=4.5)
+                      color='darkred', shape='+', size=4.5)
 ```
 
 The dataset, from GeoCommons, was primarily collected in 2005 and revised in 2009.
@@ -113,26 +113,26 @@ Methodology: straight line distance in m (on UTM projection).
 
 ---
 
-**A different view of access:** lines connect population points (every 2km) to health facilities. Long lines mean long distances to the nearest health facility. (Inspired by [[1]](http://flowingdata.com/2013/08/27/in-search-of-food-deserts/))
+**A different view:** Lines connect population points (every 2km) to health facilities. Long lines mean long distances to the nearest health facility. (Inspired by [[1]](http://flowingdata.com/2013/08/27/in-search-of-food-deserts/))
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
 require(plyr)
 health_df_utm <- plyr::rename(health_df_utm,c("latitude"="y", "longitude"="x"))
-health_df_utm <- subset(health_df_utm, select=c("x", "y", "row", "Categorie"))
+health_df_utm <- subset(health_df_utm, select=c("x", "y", "hID", "Categorie"))
 
 # For each population point, identify the closest health clinic
 popagg2 <- raster::aggregate(popagg)
 popPoints <- as.data.frame(rasterToPoints(popagg2))
 require(RSAGA)
-nearestH <- pick.from.points(popPoints, health_df_utm, radius=2E10, pick="row")
+nearestH <- pick.from.points(popPoints, health_df_utm, radius=2E10, pick="hID")
 ```
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
 # create a merge dataset; each row is a population point + nearest health facility
-merged <- merge(nearestH, health_df_utm, by="row", 
+merged <- merge(nearestH, health_df_utm, by="hID", 
                 suffixes=c(".pop", ".health"))
 # also pull lat / long in
-merged <- merge(merged, health_df[c("row", "longitude", "latitude")], by="row")
+merged <- merge(merged, health_df[c("hID", "longitude", "latitude")], by="hID")
 merged$pID <- row.names(merged)
 imerged <- idata.frame(merged)
 
@@ -164,8 +164,7 @@ On this map, population is represented by color. Brighther (more purple) indicat
 mergedPlotDF$Population.Bin <- cut(mergedPlotDF$Population, include.lowest=T,
   breaks=c(1,100,1000,10000,100000),
   labels=c("Below 100", "100-1,000", "1,000-10,000", "> 10,000"))
-p <- ggplot(mergedPlotDF, aes(x=x, y=y, group=group, color=Population.Bin)) + geom_line() + blank_theme()
-p + scale_color_brewer(palette="PuRd")
+ggplot(mergedPlotDF, aes(x=x, y=y, group=group, color=Population.Bin)) + geom_line() + blank_theme() + scale_color_brewer(palette="PuRd")
 ```
 
 --- .segue .dark
@@ -177,7 +176,7 @@ p + scale_color_brewer(palette="PuRd")
 Each dot below is a health facility. The circle size represents the population that the facility serves, and the color represents the type of facility.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=12, cache=TRUE}
-popServed <- ddply(imerged, .(row, Categorie), function(df) { 
+popServed <- ddply(imerged, .(hID, Categorie), function(df) { 
   data.frame(
     popServed = sum(df$X2003_pop_estimates), 
     longitude = df[1,'longitude'],
