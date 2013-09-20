@@ -9,7 +9,7 @@ hitheme     : tomorrow      #
 widgets     : []            # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 ---
-## Analyzing access to health in Haiti
+## Visualizing access to health in Haiti
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 ### Health Access in Haiti
@@ -27,7 +27,7 @@ require(rasterVis)
 require(ggplot2)
 ```
 
-In this presentation, we will look at visualizaions of access to health facilities in Haiti.
+In this presentation, we will look at visualizations of access to health facilities in Haiti.
 
 
 The datasets we are working with are a population estimate, 2003, from the US Census Bureau. The resolution of this dataset is 100m^2 per cell/pixel, but the analysis in this presentation will be done at an aggregation of 1km^2 per pixel.
@@ -48,9 +48,15 @@ popraster <- raster("data/2003_pop_estimates.tif")
 health_sp <- health_df
 coordinates(health_sp) <- ~longitude+latitude
 wgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+utm <- popraster@crs
 proj4string(health_sp) <- wgs84
-health_sp <- spTransform(health_sp, popraster@crs)
+health_sp <- spTransform(health_sp, utm)
 health_df_utm <- as.data.frame(health_sp)
+
+## Read the Haiti admin 3 shapefile and re-project data to utm
+require(maptools)
+admin_regions <- readShapeSpatial('data/Haiti_Sections_Final_WGS84.shp', proj4string=wgs84)
+admin_regions_DF <- fortify(spTransform(admin_regions, utm))
 
 ## To make things faster, run operations on an aggregated raster
 ## which is NA'ed out in areas with no people
@@ -62,29 +68,31 @@ values(popagg) <- replace(values(popagg), values(popagg)<1, NA)
 ---
 ## Haiti's population
 
-We will be working at a resolution of 1km^2 per cell; shown below.
-
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 blank_theme <- function() {
   theme(axis.text=element_blank(), axis.ticks=element_blank(), panel.grid=element_blank(), axis.title=element_blank())
 }
-poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) + 
-  scale_fill_gradient(low='white', high='darkblue', trans='log10') + 
+haiti_overlay <- function() {
+  
+}
+require(ggmap)
+gplot(popagg) + geom_tile(aes(fill=value)) + 
+  scale_fill_gradient(low='white', high='darkblue', trans='log10', na.value='#ffffff00') + 
   blank_theme() + labs(fill="Log Population\n(per 1km^2 cell)")
 print(poplayer)
 ```
 The total population represented is 8.4M; Haiti's population has grown to 10M+ in 2013.
+We will be working at a resolution of 1km^2 per cell; shown above.
 
 ---
 ## Haiti's population and health facilities
-
-Here, health facilities (in red) have been overlaid on top of the population layer.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 poplayer + geom_point(data=health_df_utm, aes(x=longitude, y=latitude), 
                       color='darkred', shape='+', size=4.5)
 ```
 
+Here, health facilities (in red) have been overlaid on top of the population layer.
 The dataset, from GeoCommons, was primarily collected in 2005 and revised in 2009.
 
 --- .segue .dark
@@ -105,7 +113,7 @@ distraster <- mask(distraster, popagg)
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 distlayer <- gplot(distraster) + geom_tile(aes(fill=value)) +
   blank_theme() + labs(fill="Distance to\nHealth Facility") +
-  scale_fill_gradient2(low='white', mid='yellow', high='red')
+  scale_fill_gradient2(low='white', mid='yellow', high='red', na.value='#ffffff00')
 distlayer #+ geom_point(data=health_df_utm, aes(x=longitude, y=latitude), color='green')
 ```
 
@@ -189,7 +197,10 @@ popServed$Categorie <- recodeVar(as.character(popServed$Categorie),
   c("Health Center", "H.C. with beds", "H.C. no beds",
     "Dispensary", "Field Hospital", "Hospital",
     "Specialized Hospital", "Other", "Other"))
-hospital_plot <- ggplot(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + geom_point() + blank_theme() + theme(legend.text = element_text(size = 13), legend.title=element_text(size=14))
+#ggmap(get_map(location=c(-72.9, 18.8), source="stamen", maptype='toner', 
+#                filename='figure/map.Haiti.png', color='bw', zoom=8), alpha=0.2) +
+ geom_point(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + 
+  blank_theme() + theme(legend.text = element_text(size = 13), legend.title=element_text(size=14))
 print(hospital_plot)
 ```
 
