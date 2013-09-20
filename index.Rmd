@@ -24,7 +24,7 @@ setwd(dat_dir)
 require(raster)
 require(rgdal)
 require(rasterVis)
-require(ggplot)
+require(ggplot2)
 ```
 
 In this presentation, we will look at visualizaions of access to health facilities in Haiti.
