@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+/* CSS goes here. */
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+
+/* Setting up the scene. */
+var width=800,
+    height=1200;
+var svg = d3.select('body').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+var data;
+/* Load the data and do stuff */
+d3.csv("data/Population_to_Health.csv", function(csvdata) {
+    data = csvdata;
+    console.log(csvdata);
+    console.log(csvdata[0]);
+
+    svg.selectAll(".line")
+        .data(csvdata)
+      .enter().append("line")
+        .attr('x1', function(d) { return d['x.pop']; })
+        .attr('x2', function(d) { return d['x.health']; })
+        .attr('y1', function(d) { return d['y.pop']; })
+        .attr('y2', function(d) { return d['y.health']; })
+        .attr('stroke', 'gray')
+        .attr('stroke-width', 5);
+
+})
+</script>
+</body>
+</html>
