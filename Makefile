@@ -13,3 +13,8 @@ download:
 	mv 2003_pop_estimates.* data/
 	mv Metadata.txt data/2003_pop_estimates.readme.txt
 	rm Haiti_gridded_population_estimates_2003.zip
+	wget http://www.census.gov/population/international/files/demobase/Haiti_sections_with_2003_census_data.zip
+	unzip Haiti_sections_with_2003_census_data.zip
+	mv Haiti_Sections_Final_WGS84.* data/
+	mv Readme.txt data/Haiti_Sections_final_WGS84.readme.txt
+	rm Haiti_sections_with_2003_census_data.zip
