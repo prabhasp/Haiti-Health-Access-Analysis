@@ -54,9 +54,9 @@ health_sp <- spTransform(health_sp, utm)
 health_df_utm <- as.data.frame(health_sp)
 
 ## Read the Haiti admin 3 shapefile and re-project data to utm
-require(maptools)
-admin_regions <- readShapeSpatial('data/Haiti_Sections_Final_WGS84.shp', proj4string=wgs84)
-admin_regions_DF <- fortify(spTransform(admin_regions, utm))
+#require(maptools)
+#admin_regions <- readShapeSpatial('data/Haiti_Sections_Final_WGS84.shp', proj4string=wgs84)
+#admin_regions_DF <- fortify(spTransform(admin_regions, utm))
 
 ## To make things faster, run operations on an aggregated raster
 ## which is NA'ed out in areas with no people
@@ -76,7 +76,7 @@ haiti_overlay <- function() {
   
 }
 require(ggmap)
-gplot(popagg) + geom_tile(aes(fill=value)) + 
+poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) + 
   scale_fill_gradient(low='white', high='darkblue', trans='log10', na.value='#ffffff00') + 
   blank_theme() + labs(fill="Log Population\n(per 1km^2 cell)")
 print(poplayer)
@@ -199,7 +199,7 @@ popServed$Categorie <- recodeVar(as.character(popServed$Categorie),
     "Specialized Hospital", "Other", "Other"))
 #ggmap(get_map(location=c(-72.9, 18.8), source="stamen", maptype='toner', 
 #                filename='figure/map.Haiti.png', color='bw', zoom=8), alpha=0.2) +
- geom_point(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + 
+hospital_plot <- ggplot(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + geom_point() +
   blank_theme() + theme(legend.text = element_text(size = 13), legend.title=element_text(size=14))
 print(hospital_plot)
 ```
