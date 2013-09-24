@@ -1,5 +1,5 @@
 ---
-title       : Analyzing access to health in Haiti
+title       : Visualizing access to health in Haiti
 subtitle    : 
 author      : Prabhas Pokharel, Modi Research Group
 job         : 
@@ -121,7 +121,7 @@ Methodology: straight line distance in m (on UTM projection).
 
 ---
 
-**A different view:** Lines connect population points (every 2km) to health facilities. Long lines mean long distances to the nearest health facility. (Inspired by [[1]](http://flowingdata.com/2013/08/27/in-search-of-food-deserts/))
+**A different view:** The longer the line, the farther people have to travel to the nearest health facility--lines connection population points to health facilities. (Inspired by [[1]](http://flowingdata.com/2013/08/27/in-search-of-food-deserts/))
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
 require(plyr)
@@ -162,11 +162,11 @@ ggplot(mergedPlotDF, aes(x=x, y=y, group=group)) + geom_line() +  blank_theme()
 
 --- .segue .dark
 
-## 2. Where are there __large__ populations far away from health facilities?
+## 2. Where are there large populations far away from health facilities?
 
 ---
 
-On this map, population is represented by color. Brighther (more purple) indicate bigger populations. Long purple lines indicate larger populations who have to travel long distances to health facilities.
+On this map, population is represented by color and lines are the same as before. Deeper purple lines indicate bigger populations.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=13, cache=TRUE}
 mergedPlotDF$Population.Bin <- cut(mergedPlotDF$Population, include.lowest=T,
