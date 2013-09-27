@@ -253,7 +253,6 @@ grid.frame(); grid.draw(legend)
 We are working on all of these problems at the [Modi Research Group](http://modi.mech.columbia.edu).
 
 --- .centered
-
 ## Thank You
 
 Prabhas Pokharel
