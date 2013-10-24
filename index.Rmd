@@ -54,9 +54,9 @@ health_sp <- spTransform(health_sp, utm)
 health_df_utm <- as.data.frame(health_sp)
 
 ## Read the Haiti admin 3 shapefile and re-project data to utm
-#require(maptools)
-#admin_regions <- readShapeSpatial('data/Haiti_Sections_Final_WGS84.shp', proj4string=wgs84)
-#admin_regions_DF <- fortify(spTransform(admin_regions, utm))
+require(maptools)
+admin_regions <- spTransform(readOGR('data/', layer='Haiti_Sections_Final_WGS84'), utm)
+admin_regions_DF <- fortify(admin_regions, region='OBJECTID')
 
 ## To make things faster, run operations on an aggregated raster
 ## which is NA'ed out in areas with no people
@@ -80,6 +80,7 @@ poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) +
   scale_fill_gradient(low='white', high='darkblue', trans='log10', na.value='#ffffff00') + 
   blank_theme() + labs(fill="Log Population\n(per 1km^2 cell)")
 print(poplayer)
+#poplayer + geom_path(data=admin_regions_DF, aes(x=long, y=lat, group=group))
 ```
 The total population represented is 8.4M; Haiti's population has grown to 10M+ in 2013.
 We will be working at a resolution of 1km^2 per cell; shown above.
