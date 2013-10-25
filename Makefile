@@ -18,3 +18,4 @@ download:
 	mv Haiti_Sections_Final_WGS84.* data/
 	mv Readme.txt data/Haiti_Sections_final_WGS84.readme.txt
 	rm Haiti_sections_with_2003_census_data.zip
+	Rscript DownloadMaps.R

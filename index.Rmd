@@ -19,7 +19,8 @@ dat_dir <- "~/Code/Haiti_Hospital_Access/"
 setwd(dat_dir)
 
 ### Installing packages
-# install.packages(c("raster", "rgdal", "rasterVis", "ggplot2", "plyr", "doBy"))
+# install.packages(c("raster", "rgdal", "rasterVis", "ggplot2", 
+# "plyr", "doBy"))
 ### Load packages
 require(raster)
 require(rgdal)
@@ -34,7 +35,7 @@ The datasets we are working with are a population estimate, 2003, from the US Ce
 
 The health facility dataset is from [GeoCommons](http://geocommons.com/overlays/21222).
 
-```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
+```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE, results='hide'}
 ## Load health facility data, and population grid
 health_df <- read.csv("data/HealthFacilities.csv", stringsAsFactors=F)
   # there is a single row where the lat/lng is off from the rest of dataset; remove it
@@ -54,9 +55,9 @@ health_sp <- spTransform(health_sp, utm)
 health_df_utm <- as.data.frame(health_sp)
 
 ## Read the Haiti admin 3 shapefile and re-project data to utm
-require(maptools)
+require(maptools); require(gpclib); gpclibPermit()
 admin_regions <- spTransform(readOGR('data/', layer='Haiti_Sections_Final_WGS84'), utm)
-admin_regions_DF <- fortify(admin_regions, region='OBJECTID')
+admin_regions_DF <- fortify(admin_regions, region='ID_COMMUNE')
 
 ## To make things faster, run operations on an aggregated raster
 ## which is NA'ed out in areas with no people
@@ -70,17 +71,17 @@ values(popagg) <- replace(values(popagg), values(popagg)<1, NA)
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
 blank_theme <- function() {
-  theme(axis.text=element_blank(), axis.ticks=element_blank(), panel.grid=element_blank(), axis.title=element_blank())
+  theme(axis.text=element_blank(), axis.ticks=element_blank(), 
+        panel.grid=element_blank(), axis.title=element_blank())
 }
 haiti_overlay <- function() {
-  
+  geom_path(data=admin_regions_DF, aes(x=long, y=lat, group=group), color='#88888888')
 }
 require(ggmap)
 poplayer <- gplot(popagg) + geom_tile(aes(fill=value)) + 
   scale_fill_gradient(low='white', high='darkblue', trans='log10', na.value='#ffffff00') + 
   blank_theme() + labs(fill="Log Population\n(per 1km^2 cell)")
-print(poplayer)
-#poplayer + geom_path(data=admin_regions_DF, aes(x=long, y=lat, group=group))
+poplayer + haiti_overlay()
 ```
 The total population represented is 8.4M; Haiti's population has grown to 10M+ in 2013.
 We will be working at a resolution of 1km^2 per cell; shown above.
@@ -89,8 +90,10 @@ We will be working at a resolution of 1km^2 per cell; shown above.
 ## Haiti's population and health facilities
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=10, cache=TRUE}
-poplayer + geom_point(data=health_df_utm, aes(x=longitude, y=latitude), 
-                      color='darkred', shape='+', size=4.5)
+poplayer + 
+    geom_point(data=health_df_utm, aes(x=longitude, y=latitude), 
+               color='darkred', shape='+', size=4.5) +
+    haiti_overlay()
 ```
 
 Here, health facilities (in red) have been overlaid on top of the population layer.
@@ -115,7 +118,7 @@ distraster <- mask(distraster, popagg)
 distlayer <- gplot(distraster) + geom_tile(aes(fill=value)) +
   blank_theme() + labs(fill="Distance to\nHealth Facility") +
   scale_fill_gradient2(low='white', mid='yellow', high='red', na.value='#ffffff00')
-distlayer #+ geom_point(data=health_df_utm, aes(x=longitude, y=latitude), color='green')
+distlayer + haiti_overlay()
 ```
 
 Methodology: straight line distance in m (on UTM projection).
@@ -143,6 +146,7 @@ merged <- merge(nearestH, health_df_utm, by="hID",
 # also pull lat / long in
 merged <- merge(merged, health_df[c("hID", "longitude", "latitude")], by="hID")
 merged$pID <- row.names(merged)
+merged$distance <- sqrt((merged$x.pop - merged$x.health)^2 + (merged$y.pop - merged$y.pop)^2)
 imerged <- idata.frame(merged)
 
 # create a data frame for plotting; instead of health facility and nearest data frame
@@ -152,13 +156,16 @@ mergedPlotDF <- ddply(imerged, .(pID), function(df) {
     x=c(df$x.pop, df$x.health), 
     y=c(df$y.pop, df$y.health),
     group=c(df[1,'pID'], df[1,'pID']),
-    Population=c(df[1,'X2003_pop_estimates'],df[1,'X2003_pop_estimates'])
+    Population=c(df[1,'X2003_pop_estimates'],df[1,'X2003_pop_estimates']),
+    type=c("Population Point", "Health Facility")
 )})
 ```
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=12, cache=TRUE}
-require(ggplot2)
-ggplot(mergedPlotDF, aes(x=x, y=y, group=group)) + geom_line() +  blank_theme()
+require(ggplot2); require(OpenStreetMap)
+mapprojected <- readRDS('data/HaitiBaseMapPlain_utm.rds')
+autoplot(mapprojected)  + blank_theme() + 
+    geom_line(data=mergedPlotDF, aes(x=x, y=y, group=group))
 ```
 
 --- .segue .dark
