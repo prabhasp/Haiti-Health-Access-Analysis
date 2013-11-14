@@ -177,95 +177,42 @@ autoplot(mapprojected)  + blank_theme() +
 On this map, population is represented by color and lines are the same as before. Deeper purple lines indicate bigger populations.
 
 ```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=13, cache=TRUE}
-mergedPlotDF$Population.Bin <- cut(mergedPlotDF$Population, include.lowest=T,
-  breaks=c(1,100,1000,10000,100000),
-  labels=c("Below 100", "100-1,000", "1,000-10,000", "> 10,000"))
-ggplot(mergedPlotDF, aes(x=x, y=y, group=group, color=Population.Bin)) + geom_line() + blank_theme() + scale_color_brewer(palette="PuRd")
+mergedPlotDF$Population.Bin <- 
+    cut(mergedPlotDF$Population, include.lowest=T,
+        breaks=c(1,100,1000,10000,100000),
+        labels=c("Below 100", "100-1,000", "1,000-10,000", "> 10,000"))
+autoplot(mapprojected)  + blank_theme() +  
+    geom_line(data=mergedPlotDF, aes(x=x, y=y, group=group, 
+                                     color=Population.Bin)) + 
+    scale_color_brewer(palette="PuRd")
 ```
 
 --- .segue .dark
 
-## 3. Which health facilities are over-burdened?
 
----
-
-Each dot below is a health facility. The circle size represents the population that the facility serves, and the color represents the type of facility.
-
-```{r echo=F, warning=F, message=F, comment=NA, fig.height=6, fig.width=12, cache=TRUE}
-popServed <- ddply(imerged, .(hID, Categorie), function(df) { 
-  data.frame(
-    popServed = sum(df$X2003_pop_estimates), 
-    longitude = df[1,'longitude'],
-    latitude = df[1,'latitude']
-)})
-require(doBy)
-popServed$Categorie <- recodeVar(as.character(popServed$Categorie),
-  c("C/S", "CAL", "CSL", "DISP", "F Hospital",
-    "HOP", "HOPSpec", "Other", "Unknown"),
-  c("Health Center", "H.C. with beds", "H.C. no beds",
-    "Dispensary", "Field Hospital", "Hospital",
-    "Specialized Hospital", "Other", "Other"))
-#ggmap(get_map(location=c(-72.9, 18.8), source="stamen", maptype='toner', 
-#                filename='figure/map.Haiti.png', color='bw', zoom=8), alpha=0.2) +
-hospital_plot <- ggplot(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + geom_point() +
-  blank_theme() + theme(legend.text = element_text(size = 13), legend.title=element_text(size=14))
-print(hospital_plot)
-```
-
-Assumption: every population cell attends the health facility nearest to it.
-
----
-
-In a zoomed-in view of some cities below, we see that there are health centers (blue / green) that serve large populations. These are facilities with high potential for upgrades.
-
-```{r echo=F, warning=F, message=F, comment=NA, fig.height=4, fig.width=4, cache=TRUE}
-require(ggmap)
-mapHaitianCity <- function(city_name, center_point, zl=13, lp='none') {
-  ggmap(get_map(location=center_point, source="google", 
-                filename=paste("figure/map",city_name,'png',sep='.'), 
-                color='bw', zoom=zl), alpha=0.2) + 
-    geom_point(data=popServed, aes(x=longitude, y=latitude, size=popServed, color=Categorie)) + labs(title=city_name) + blank_theme() +
-    opts(legend.position=lp)
-}
-mapHaitianCity('Port Au Prince', c(-72.3431, 18.5430), zl=12)
-mapHaitianCity('Carrefour', c(-72.4167, 18.5333))
-mapHaitianCity('Delmas', c(-72.3000, 18.5500))
-#mapHaitianCity('Cap Haitien', c(-72.1997, 19.7562))
-#mapHaitianCity('Gonaïves', c(-72.6939, 19.4609))
-
-```
-```{r echo=F, warning=F, message=F, comment=NA, fig.height=3, fig.width=12, cache=TRUE}
-# just the legend -- from http://stackoverflow.com/questions/12041042/how-to-plot-just-the-legends-in-ggplot2
-g_legend<-function(a.gplot){ 
-    tmp <- ggplot_gtable(ggplot_build(a.gplot)) 
-    leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
-    legend <- tmp$grobs[[leg]] 
-    return(legend)}
-
-legend <- g_legend(hospital_plot + opts(legend.position='bottom'))
-grid.frame(); grid.draw(legend)
+```{r echo=F, warning=F, message=F, comment=NA, fig.height=8, fig.width=13, cache=TRUE}
 ```
 
 ---
 
 ## And next ...
 
- * The maps in this presentation are a small glimpse to insights analytical software (such as this script, programmed in R) can do with good data. More sophisticated algorithms can take the visual analysis here a step further, and recommend where new health facilities should be built, which ones should be upgraded.
+ * These maps are the first steps of analysis, more sophisticated algorithsm can dive deeper, including into recommendations.
 
- * The pre-requisite to having this be useful is timely, updated data, so plans can stay current.
+ * The pre-requisite is good data; for garbage in, garbage out.
 
- * The analysis here also needs to be made more interactive and useful to those working at local levels.
+ * The analysis should be made interactive for local-level users.
 
  * And finally, the analysis, however sophisticated, cannot exist in a vacuum. It needs to be interpreted and understood by those who actually know on-the-ground realities.
  
-We are working on all of these problems at the [Modi Research Group](http://modi.mech.columbia.edu).
+We are working on all of these problems at the [Sustainable Engineering Lab](http://modi.mech.columbia.edu).
 
 --- .centered
 ## Thank You
 
 Prabhas Pokharel
 
-[Modi Research Group](http://modi.mech.columbia.edu)
+[Sustainable Engineering Lab](http://modi.mech.columbia.edu)
 
 Earth Institute
 
